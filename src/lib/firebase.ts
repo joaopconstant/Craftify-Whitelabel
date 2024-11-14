@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential } from "firebase/auth";
-import { addDoc, collection, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, getFirestore, query, updateDoc, where } from "firebase/firestore";
 
 // Configurações do Firebase (as variáveis estão no .env.local)
 const firebaseConfig = {
@@ -74,6 +74,18 @@ export const getOrdersByCliente = async (clienteId: string) => {
   const q = query(collection(db, 'pedidos'), where('clienteId', '==', clienteId));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+// Função para atualizar as configurações do lojista
+export const updateLojistaConfig = async (lojistaId: string, data: any) => {
+  try {
+    const lojistaRef = doc(db, "lojista", lojistaId);  // Referência ao documento do lojista
+    await updateDoc(lojistaRef, data);  // Atualiza o documento com os dados fornecidos
+    console.log("Configurações do lojista atualizadas com sucesso!");
+  } catch (error) {
+    console.error("Erro ao atualizar as configurações do lojista: ", error);
+    throw new Error("Erro ao atualizar as configurações do lojista.");
+  }
 };
 
 export { db, auth };
