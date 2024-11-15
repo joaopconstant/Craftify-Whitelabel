@@ -29,7 +29,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/ui/header";
-import { Layers, Settings, ShoppingBag } from "lucide-react";
+import { Home, Layers, Settings, ShoppingBag } from "lucide-react";
 
 const ProdutosPage = () => {
   const router = useRouter();
@@ -195,6 +195,9 @@ const ProdutosPage = () => {
       <Header />
       <div className="flex min-h-screen">
         <Sidebar>
+        <Sidebar.Item onClick={() => router.push("/admin/")}>
+            <Home /> Início
+          </Sidebar.Item>
           <Sidebar.Item onClick={() => router.push("/admin/produtos")}>
             <Layers /> Produtos
           </Sidebar.Item>
@@ -209,7 +212,7 @@ const ProdutosPage = () => {
         <div className="flex-1 p-8">
           <Card className="w-full mx-auto">
             <CardHeader>
-              <h2 className="text-2xl font-bold">Produtos</h2>
+              <h2 className="text-2xl font-bold">Gerenciamento de   Produtos</h2>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
@@ -326,7 +329,7 @@ const ProdutosPage = () => {
                   {isEditing ? "Salvar Alterações" : "Adicionar Produto"}
                 </Button>
                 <DialogClose asChild>
-                  <Button variant="outline" className="w-full mt-2">
+                  <Button variant="outline" className="w-full">
                     Fechar
                   </Button>
                 </DialogClose>

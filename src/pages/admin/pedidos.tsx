@@ -13,7 +13,7 @@ import { Sidebar } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Header from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Layers, Settings } from "lucide-react";
+import { ShoppingBag, Layers, Settings, Home } from "lucide-react";
 import { useRouter } from "next/router";
 
 const PedidosPage = () => {
@@ -88,6 +88,9 @@ const PedidosPage = () => {
       <Header />
       <div className="flex min-h-screen">
         <Sidebar>
+          <Sidebar.Item onClick={() => router.push("/admin/")}>
+            <Home /> Início
+          </Sidebar.Item>
           <Sidebar.Item onClick={() => router.push("/admin/produtos")}>
             <Layers /> Produtos
           </Sidebar.Item>

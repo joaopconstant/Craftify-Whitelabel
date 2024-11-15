@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/ui/sidebar";
 import Header from "@/components/ui/header";
-import { Layers, Settings, ShoppingBag } from "lucide-react";
+import { Home, Layers, Settings, ShoppingBag } from "lucide-react";
 
 const ConfiguracoesPage = () => {
   const router = useRouter();
@@ -22,10 +22,22 @@ const ConfiguracoesPage = () => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        // Pode carregar outras configurações aqui, se necessário
+
+        // Carregar as informações do lojista
+        const lojistaRef = doc(db, "lojista", currentUser.uid);
+        const lojistaSnap = await getDoc(lojistaRef);
+
+        if (lojistaSnap.exists()) {
+          const lojistaData = lojistaSnap.data();
+          setLojista(lojistaData);
+          setNome(lojistaData.nome || "");
+          setCorPrimaria(lojistaData.corPrimaria || "");
+          setCorSecundaria(lojistaData.corSecundaria || "");
+          setLogotipo(lojistaData.logotipo || "");
+        }
       } else {
         router.push("/admin/login");
       }
@@ -34,14 +46,6 @@ const ConfiguracoesPage = () => {
 
     return () => unsubscribe();
   }, [router]);
-
-  if (loading) {
-    return <p>Carregando...</p>;
-  }
-
-  if (!user) {
-    return null;
-  }
 
   const handleSave = async () => {
     const auth = getAuth();
@@ -59,6 +63,7 @@ const ConfiguracoesPage = () => {
         },
         { merge: true }
       );
+      alert("Configurações salvas com sucesso.")
     }
   };
 
@@ -69,6 +74,9 @@ const ConfiguracoesPage = () => {
       <Header />
       <div className="flex min-h-screen">
         <Sidebar>
+          <Sidebar.Item onClick={() => router.push("/admin/")}>
+            <Home /> Início
+          </Sidebar.Item>
           <Sidebar.Item onClick={() => router.push("/admin/produtos")}>
             <Layers /> Produtos
           </Sidebar.Item>
