@@ -23,14 +23,17 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import Header from "@/components/ui/header";
+import { Layers, Settings, ShoppingBag } from "lucide-react";
 
 const ProdutosPage = () => {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
   const [produtos, setProdutos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
@@ -43,9 +46,54 @@ const ProdutosPage = () => {
   const [estoque, setEstoque] = useState<number>(0);
   const [customizavel, setCustomizavel] = useState<boolean>(false);
 
+  const fetchProdutos = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Usuário não autenticado!");
+      return;
+    }
+
+    try {
+      const produtoRef = collection(db, "produto");
+      const q = query(produtoRef, where("lojistaId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+
+      const produtosList = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id, // Inclui o id do documento
+      }));
+      setProdutos(produtosList);
+      setLoading(false);
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+      alert("Erro ao buscar produtos.");
+    }
+  };
+
   useEffect(() => {
-    fetchProdutos();
-  }, []);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        fetchProdutos();
+      } else {
+        router.push("/admin/login");
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (loading) {
+    return <p>Carregando...</p>;
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const handleAddProduto = async () => {
     const auth = getAuth();
@@ -130,32 +178,6 @@ const ProdutosPage = () => {
     }
   };
 
-  const fetchProdutos = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (!user) {
-      alert("Usuário não autenticado!");
-      return;
-    }
-
-    try {
-      const produtoRef = collection(db, "produto");
-      const q = query(produtoRef, where("lojistaId", "==", user.uid));
-      const querySnapshot = await getDocs(q);
-
-      const produtosList = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id, // Inclui o id do documento
-      }));
-      setProdutos(produtosList);
-      setLoading(false);
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-      alert("Erro ao buscar produtos.");
-    }
-  };
-
   const openEditModal = (produto: any) => {
     setIsEditing(true);
     setProdutoIdEdit(produto.id);
@@ -169,143 +191,149 @@ const ProdutosPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar>
-        <Sidebar.Item onClick={() => router.push("/admin/produtos")}>
-          Produtos
-        </Sidebar.Item>
-        <Sidebar.Item onClick={() => router.push("/admin/pedidos")}>
-          Pedidos
-        </Sidebar.Item>
-        <Sidebar.Item onClick={() => router.push("/admin/configuracoes")}>
-          Configurações
-        </Sidebar.Item>
-      </Sidebar>
+    <div className="flex-col ">
+      <Header />
+      <div className="flex min-h-screen">
+        <Sidebar>
+          <Sidebar.Item onClick={() => router.push("/admin/produtos")}>
+            <Layers /> Produtos
+          </Sidebar.Item>
+          <Sidebar.Item onClick={() => router.push("/admin/pedidos")}>
+            <ShoppingBag /> Pedidos
+          </Sidebar.Item>
+          <Sidebar.Item onClick={() => router.push("/admin/configuracoes")}>
+            <Settings /> Configurações
+          </Sidebar.Item>
+        </Sidebar>
 
-      <div className="flex-1 p-8">
-        <Card className="w-full mx-auto">
-          <CardHeader>
-            <h2 className="text-xl font-bold">Produtos</h2>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
-              {produtos.length === 0 ? (
-                <p>Sem produtos cadastrados.</p>
-              ) : (
-                produtos.map((produto) => (
-                  <div
-                    key={produto.id}
-                    className="bg-white border rounded-lg shadow-lg p-6 space-y-4"
-                  >
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {produto.nome}
-                    </h3>
-                    <img
-                      src={produto.imagem}
-                      alt={produto.nome}
-                      className="w-full h-48 object-cover rounded-md"
-                    />
-                    <p className="text-gray-600">{produto.descricao}</p>
-                    <p className="text-lg font-bold text-gray-900">
-                      Preço: R${produto.preco}
-                    </p>
-                    <div className="flex space-x-4 mt-4">
-                      <Button
-                        onClick={() => openEditModal(produto)}
-                        className="w-full"
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteProduto(produto.id)}
-                        variant="outline"
-                        className="w-full hover:bg-red-500 hover:text-white"
-                      >
-                        Excluir
-                      </Button>
+        <div className="flex-1 p-8">
+          <Card className="w-full mx-auto">
+            <CardHeader>
+              <h2 className="text-2xl font-bold">Produtos</h2>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
+                {produtos.length === 0 ? (
+                  <p>Sem produtos cadastrados.</p>
+                ) : (
+                  produtos.map((produto) => (
+                    <div
+                      key={produto.id}
+                      className="bg-white border rounded-lg shadow-lg p-6 space-y-4"
+                    >
+                      <h3 className="font-semibold text-gray-800">
+                        {produto.nome}
+                      </h3>
+                      <img
+                        src={produto.imagem}
+                        alt={produto.nome}
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                      <p className="text-gray-600">{produto.descricao}</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        Preço: R${produto.preco}
+                      </p>
+                      <div className="flex space-x-4 mt-4">
+                        <Button
+                          onClick={() => openEditModal(produto)}
+                          className="w-full"
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteProduto(produto.id)}
+                          variant="outline"
+                          className="w-full hover:bg-red-500 hover:text-white"
+                        >
+                          Excluir
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <Button onClick={() => setOpenModal(true)} className="w-auto mt-4">
-              Adicionar Produto
-            </Button>
-          </CardContent>
-        </Card>
+                  ))
+                )}
+              </div>
+              <Button
+                onClick={() => setOpenModal(true)}
+                className="w-auto mt-4"
+              >
+                Adicionar Produto
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Dialog open={openModal} onOpenChange={setOpenModal}>
-          <DialogContent className="bg-white p-6 rounded-lg">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditing ? "Editar Produto" : "Adicionar Produto"}
-              </DialogTitle>
-              <DialogDescription>
-                {isEditing
-                  ? "Faça as alterações necessárias no produto."
-                  : "Preencha os dados do produto para adicionar à sua loja."}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <Input
-                placeholder="Nome do Produto"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-              />
-              <Input
-                placeholder="Link da Imagem"
-                value={imagem}
-                onChange={(e) => setImagem(e.target.value)}
-              />
-              <Input
-                placeholder="Descrição do Produto"
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-              />
-              <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="preco">Preço</Label>
+          <Dialog open={openModal} onOpenChange={setOpenModal}>
+            <DialogContent className="bg-white p-6 rounded-lg">
+              <DialogHeader>
+                <DialogTitle>
+                  {isEditing ? "Editar Produto" : "Adicionar Produto"}
+                </DialogTitle>
+                <DialogDescription>
+                  {isEditing
+                    ? "Faça as alterações necessárias no produto."
+                    : "Preencha os dados do produto para adicionar à sua loja."}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
                 <Input
-                  type="number"
-                  placeholder="Preço"
-                  value={preco}
-                  onChange={(e) => setPreco(Number(e.target.value))}
+                  placeholder="Nome do Produto"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
                 />
-              </div>
-              <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="estoque">Estoque</Label>
                 <Input
-                  type="number"
-                  placeholder="Estoque"
-                  value={estoque}
-                  onChange={(e) => setEstoque(Number(e.target.value))}
+                  placeholder="Link da Imagem"
+                  value={imagem}
+                  onChange={(e) => setImagem(e.target.value)}
                 />
-              </div>
-              <div className="items-top flex space-x-2">
-                <Checkbox
-                  id="customizavel"
-                  checked={customizavel}
-                  onCheckedChange={() => setCustomizavel(!customizavel)}
+                <Input
+                  placeholder="Descrição do Produto"
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
                 />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="customizavel">Produto Customizável</Label>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <Label htmlFor="preco">Preço</Label>
+                  <Input
+                    type="number"
+                    placeholder="Preço"
+                    value={preco}
+                    onChange={(e) => setPreco(Number(e.target.value))}
+                  />
+                </div>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <Label htmlFor="estoque">Estoque</Label>
+                  <Input
+                    type="number"
+                    placeholder="Estoque"
+                    value={estoque}
+                    onChange={(e) => setEstoque(Number(e.target.value))}
+                  />
+                </div>
+                <div className="items-top flex space-x-2">
+                  <Checkbox
+                    id="customizavel"
+                    checked={customizavel}
+                    onCheckedChange={() => setCustomizavel(!customizavel)}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="customizavel">Produto Customizável</Label>
+                  </div>
                 </div>
               </div>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={isEditing ? handleEditProduto : handleAddProduto}
-                className="w-full"
-              >
-                {isEditing ? "Salvar Alterações" : "Adicionar Produto"}
-              </Button>
-              <DialogClose asChild>
-                <Button variant="outline" className="w-full mt-2">
-                  Fechar
+              <DialogFooter>
+                <Button
+                  onClick={isEditing ? handleEditProduto : handleAddProduto}
+                  className="w-full"
+                >
+                  {isEditing ? "Salvar Alterações" : "Adicionar Produto"}
                 </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                <DialogClose asChild>
+                  <Button variant="outline" className="w-full mt-2">
+                    Fechar
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   );

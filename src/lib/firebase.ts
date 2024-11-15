@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { addDoc, collection, doc, getDocs, getFirestore, query, updateDoc, where } from "firebase/firestore";
 
 // Configurações do Firebase (as variáveis estão no .env.local)
@@ -17,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 
 // Exportar instâncias do Firebase Authentication e Firestore
 const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence);
 const db = getFirestore(app);
 
 // Login do lojista
