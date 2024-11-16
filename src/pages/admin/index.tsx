@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
+import { Produto, Pedido } from "@/lib/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { Sidebar } from "@/components/ui/sidebar";
@@ -11,8 +12,8 @@ import { useRouter } from "next/router";
 const DashboardPage = () => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [produtos, setProdutos] = useState<any[]>([]);
-  const [pedidos, setPedidos] = useState<any[]>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [totalReceita, setTotalReceita] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -26,29 +27,26 @@ const DashboardPage = () => {
     }
 
     try {
-      // Consulta de produtos
       const produtosRef = collection(db, "produto");
       const qProdutos = query(produtosRef, where("lojistaId", "==", user.uid));
       const querySnapshotProdutos = await getDocs(qProdutos);
-      const produtosList = querySnapshotProdutos.docs.map((doc) => ({
+      const produtosList: Produto[] = querySnapshotProdutos.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
-      }));
+      })) as Produto[];
       setProdutos(produtosList);
 
-      // Consulta de pedidos
       const pedidosRef = collection(db, "pedido");
       const qPedidos = query(pedidosRef, where("lojistaId", "==", user.uid));
       const querySnapshotPedidos = await getDocs(qPedidos);
-      const pedidosList = querySnapshotPedidos.docs.map((doc) => ({
+      const pedidosList: Pedido[] = querySnapshotPedidos.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
-      }));
+      })) as Pedido[];
       setPedidos(pedidosList);
 
-      // Calcula total da receita
       const total = pedidosList.reduce(
-        (acc, pedido) => acc + parseFloat(pedido.total),
+        (acc, pedido) => acc + pedido.total,
         0
       );
       setTotalReceita(total);
@@ -65,7 +63,7 @@ const DashboardPage = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        fetchDados(); // Carrega dados após autenticação
+        fetchDados();
       } else {
         router.push("/admin/login");
       }
@@ -85,7 +83,7 @@ const DashboardPage = () => {
 
   return (
     <div className="flex-col">
-      <Header type="admin"/>
+      <Header type="admin" />
       <div className="flex min-h-screen">
         <Sidebar>
           <Sidebar.Item onClick={() => router.push("/admin/")}>
@@ -118,7 +116,7 @@ const DashboardPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card >
+                <Card>
                   <CardHeader>
                     <h3 className="font-bold">Pedidos Realizados</h3>
                   </CardHeader>

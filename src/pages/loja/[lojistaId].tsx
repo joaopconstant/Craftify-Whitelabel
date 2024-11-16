@@ -2,37 +2,36 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { collection, getDocs, query, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Produto, Lojista } from "@/lib/types";
 import Header from "@/components/ui/header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const LojaHome = () => {
-  const [produtos, setProdutos] = useState<any[]>([]);
-  const [lojista, setLojista] = useState<any | null>(null);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [lojista, setLojista] = useState<Lojista | null>(null);
   const router = useRouter();
   const { lojistaId } = router.query;
 
   useEffect(() => {
     if (lojistaId) {
-      // Fetch produtos
       const fetchProdutos = async () => {
         const produtosRef = collection(db, "produto");
         const q = query(produtosRef);
         const querySnapshot = await getDocs(q);
 
-        const produtosData = querySnapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
+        const produtosData: Produto[] = querySnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() } as Produto))
           .filter((produto) => produto.lojistaId === lojistaId);
 
         setProdutos(produtosData);
       };
 
-      // Fetch lojista
       const fetchLojista = async () => {
         const docRef = doc(db, "lojista", lojistaId as string);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setLojista(docSnap.data());
+          setLojista(docSnap.data() as Lojista);
         }
       };
 
@@ -51,7 +50,7 @@ const LojaHome = () => {
             produtos.map((produto) => (
               <Card key={produto.id} className="p-4 shadow-lg max-w-4xl">
                 <img
-                  src={produto.imagem}
+                  src={produto.imagem || "/placeholder.png"}
                   alt={produto.nome}
                   className="w-full h-48 object-cover rounded-t-md"
                 />
@@ -61,15 +60,15 @@ const LojaHome = () => {
                   <p
                     className="text-xl font-semibold mt-2"
                     style={{
-                      color: lojista?.corSecundaria || "blue", // Cor secundária
+                      color: lojista?.corSecundaria || "blue",
                     }}
                   >
-                    R$ {produto.preco.toFixed(2)}
+                    R$ {produto.preco ? produto.preco.toFixed(2) : "0.00"}
                   </p>
                   <Button
                     className="mt-4 w-full"
                     style={{
-                      backgroundColor: lojista?.corPrimaria || "gray", // Cor primária
+                      backgroundColor: lojista?.corPrimaria || "gray",
                       color: "white",
                     }}
                     onClick={() =>
