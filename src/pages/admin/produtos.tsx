@@ -192,7 +192,7 @@ const ProdutosPage = () => {
 
   return (
     <div className="flex-col ">
-      <Header />
+      <Header type="admin"/>
       <div className="flex min-h-screen">
         <Sidebar>
         <Sidebar.Item onClick={() => router.push("/admin/")}>

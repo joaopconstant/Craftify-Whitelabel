@@ -1,115 +1,95 @@
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import {
-  doc,
-  getDoc,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import Header from "@/components/ui/header";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const Loja = () => {
+const LojaHome = () => {
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [lojista, setLojista] = useState<any | null>(null);
   const router = useRouter();
   const { lojistaId } = router.query;
-  const [lojista, setLojista] = useState<any>(null);
-  const [produtos, setProdutos] = useState<any[]>([]);
 
   useEffect(() => {
     if (lojistaId) {
+      // Fetch produtos
+      const fetchProdutos = async () => {
+        const produtosRef = collection(db, "produto");
+        const q = query(produtosRef);
+        const querySnapshot = await getDocs(q);
+
+        const produtosData = querySnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((produto) => produto.lojistaId === lojistaId);
+
+        setProdutos(produtosData);
+      };
+
+      // Fetch lojista
       const fetchLojista = async () => {
-        const lojistaRef = doc(db, "lojista", lojistaId as string);
-        const docSnap = await getDoc(lojistaRef);
-
+        const docRef = doc(db, "lojista", lojistaId as string);
+        const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const lojistaData = docSnap.data();
-          setLojista(lojistaData);
-
-          // Buscar produtos associados ao lojista
-          const produtosRef = collection(db, "produto");
-          const q = query(produtosRef, where("lojistaId", "==", lojistaId));
-          const querySnapshot = await getDocs(q);
-
-          const produtosData = querySnapshot.docs.map((doc) => doc.data());
-          setProdutos(produtosData);
-        } else {
-          console.log("Lojista não encontrado");
+          setLojista(docSnap.data());
         }
       };
 
+      fetchProdutos();
       fetchLojista();
     }
   }, [lojistaId]);
 
-  if (!lojista) {
-    return <div>Carregando...</div>;
-  }
-
   return (
-    <div className="bg-white">
-      <div className="container mx-auto p-6">
-        <Card className="w-full max-w-4xl mx-auto bg-white shadow-lg">
-          <CardHeader className="flex justify-between items-center">
-            <img
-              src={lojista.logotipo}
-              alt={lojista.nome}
-              className="w-32 h-auto"
-            />
-            <h1 className="text-3xl font-bold text-center">{lojista.nome}</h1>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <p className="text-center text-lg">{lojista.descricao}</p>
-            <div className="mt-6">
-              <h2 className="text-xl font-semibold">Produtos</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                {produtos.length > 0 ? (
-                  produtos.map((produto, index) => (
-                    <Card
-                      key={index}
-                      className="w-full max-w-xs mx-auto bg-white shadow-lg"
-                    >
-                      <CardHeader>
-                        <h3 className="font-bold text-center">
-                          {produto.nome}
-                        </h3>
-                      </CardHeader>
-                      <CardContent className="p-4">
-                        <img
-                          src={produto.imagem}
-                          alt={produto.nome}
-                          className="w-full h-48 object-cover rounded-lg mb-5"
-                        />
-                        <p className="text-center">{produto.descricao}</p>
-                        <Button
-                          className="mt-4"
-                          style={{
-                            backgroundColor: lojista.corPrimaria,
-                            color: "white",
-                          }}
-                          onClick={() =>
-                            alert(`Visualizar produto: ${produto.nome}`)
-                          }
-                        >
-                          Ver Detalhes
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <p className="text-center text-lg">
-                    Nenhum produto disponível
+    <div className="bg-gray-50 min-h-screen">
+      <Header type="loja" />
+      <main className="container mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Produtos</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {produtos.length > 0 ? (
+            produtos.map((produto) => (
+              <Card key={produto.id} className="p-4 shadow-lg max-w-4xl">
+                <img
+                  src={produto.imagem}
+                  alt={produto.nome}
+                  className="w-full h-48 object-cover rounded-t-md"
+                />
+                <div className="mt-4">
+                  <h2 className="text-lg font-bold">{produto.nome}</h2>
+                  <p className="text-sm text-gray-600">{produto.descricao}</p>
+                  <p
+                    className="text-xl font-semibold mt-2"
+                    style={{
+                      color: lojista?.corSecundaria || "blue", // Cor secundária
+                    }}
+                  >
+                    R$ {produto.preco.toFixed(2)}
                   </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  <Button
+                    className="mt-4 w-full"
+                    style={{
+                      backgroundColor: lojista?.corPrimaria || "gray", // Cor primária
+                      color: "white",
+                    }}
+                    onClick={() =>
+                      alert(`Adicionar ao carrinho: ${produto.nome}`)
+                    }
+                  >
+                    Adicionar ao Carrinho
+                  </Button>
+                </div>
+              </Card>
+            ))
+          ) : (
+            <p className="text-gray-600 text-center col-span-full">
+              Nenhum produto disponível no momento.
+            </p>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
 
-export default Loja;
+export default LojaHome;
