@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/ui/sidebar";
 import Header from "@/components/ui/header";
 import { Home, Layers, Settings, ShoppingBag } from "lucide-react";
+import { Lojista } from "@/lib/types";
 
 const ConfiguracoesPage = () => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [lojista, setLojista] = useState<any>(null);
+  const [lojista, setLojista] = useState<Lojista | null>(null);
   const [loading, setLoading] = useState(true);
   const [nome, setNome] = useState<string>("");
   const [corPrimaria, setCorPrimaria] = useState<string>("");
@@ -31,7 +32,7 @@ const ConfiguracoesPage = () => {
         const lojistaSnap = await getDoc(lojistaRef);
 
         if (lojistaSnap.exists()) {
-          const lojistaData = lojistaSnap.data();
+          const lojistaData = lojistaSnap.data() as Lojista;
           setLojista(lojistaData);
           setNome(lojistaData.nome || "");
           setCorPrimaria(lojistaData.corPrimaria || "");
@@ -63,7 +64,7 @@ const ConfiguracoesPage = () => {
         },
         { merge: true }
       );
-      alert("Configurações salvas com sucesso.")
+      alert("Configurações salvas com sucesso.");
     }
   };
 
@@ -71,7 +72,7 @@ const ConfiguracoesPage = () => {
 
   return (
     <div className="flex-col">
-      <Header type="admin"/>
+      <Header type="admin" />
       <div className="flex min-h-screen">
         <Sidebar>
           <Sidebar.Item onClick={() => router.push("/admin/")}>
@@ -88,7 +89,7 @@ const ConfiguracoesPage = () => {
           </Sidebar.Item>
         </Sidebar>
 
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 min-h-screen">
           <Card className="w-full max-w-3xl mx-auto">
             <CardHeader>
               <h2 className="text-2xl font-bold">Configurações da Loja</h2>
@@ -144,6 +145,13 @@ const ConfiguracoesPage = () => {
                 </div>
                 <Button onClick={handleSave} className="w-full mt-4">
                   Salvar Configurações
+                </Button>
+                <Button
+                  variant={"outline"}
+                  onClick={() => window.open(`/loja/${user?.uid}`)}
+                  className="w-full mt-4"
+                >
+                  Visitar Loja
                 </Button>
               </div>
             </CardContent>

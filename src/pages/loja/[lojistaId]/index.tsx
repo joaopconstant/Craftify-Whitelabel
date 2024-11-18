@@ -50,7 +50,9 @@ const LojaHome = () => {
               <Card
                 key={produto.id}
                 className="p-4 shadow-lg max-w-4xl cursor-pointer"
-                onClick={() => router.push(`/loja/${lojistaId}/produto/${produto.id}`)}
+                onClick={() =>
+                  router.push(`/loja/${lojistaId}/produto/${produto.id}`)
+                }
               >
                 <img
                   src={produto.imagem || "/placeholder.png"}

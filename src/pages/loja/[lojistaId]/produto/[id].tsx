@@ -67,7 +67,7 @@ const ProdutoPage = () => {
             <img
               src={produto.imagem}
               alt={produto.nome}
-              className="w-full h-auto max-h-80 object-contain"
+              className="w-auto h-auto max-h-80 object-contain rounded-lg"
             />
             <div className="flex-col mt-4 md:mt-0">
               <CardDescription style={{ whiteSpace: "pre-wrap" }}>

@@ -25,7 +25,13 @@ import {
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { Sidebar } from "@/components/ui/sidebar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/ui/header";
@@ -63,10 +69,13 @@ const ProdutosPage = () => {
       const q = query(produtoRef, where("lojistaId", "==", user.uid));
       const querySnapshot = await getDocs(q);
 
-      const produtosList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      } as Produto));      
+      const produtosList = querySnapshot.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as Produto)
+      );
       setProdutos(produtosList);
       setLoading(false);
     } catch (error) {
@@ -200,10 +209,10 @@ const ProdutosPage = () => {
 
   return (
     <div className="flex-col ">
-      <Header type="admin"/>
+      <Header type="admin" />
       <div className="flex min-h-screen">
         <Sidebar>
-        <Sidebar.Item onClick={() => router.push("/admin/")}>
+          <Sidebar.Item onClick={() => router.push("/admin/")}>
             <Home /> Início
           </Sidebar.Item>
           <Sidebar.Item onClick={() => router.push("/admin/produtos")}>
@@ -220,7 +229,7 @@ const ProdutosPage = () => {
         <div className="flex-1 p-8">
           <Card className="w-full mx-auto">
             <CardHeader>
-              <h2 className="text-2xl font-bold">Gerenciamento de   Produtos</h2>
+              <h2 className="text-2xl font-bold">Gerenciamento de Produtos</h2>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
@@ -230,7 +239,7 @@ const ProdutosPage = () => {
                   produtos.map((produto) => (
                     <div
                       key={produto.id}
-                      className="bg-white border rounded-lg shadow-lg p-6 space-y-4"
+                      className="bg-white border rounded-lg shadow-lg p-6 space-y-4 flex flex-col"
                     >
                       <h3 className="font-semibold text-gray-800">
                         {produto.nome}
@@ -240,11 +249,16 @@ const ProdutosPage = () => {
                         alt={produto.nome}
                         className="w-full h-48 object-cover rounded-md"
                       />
-                      <p className="text-gray-600">{produto.descricao}</p>
+                      <p className="text-gray-600 flex-grow">
+                        {produto.descricao}
+                      </p>{" "}
+                      {/* flex-grow para ocupar o espaço */}
                       <p className="text-lg font-bold text-gray-900">
                         Preço: R${produto.preco}
                       </p>
                       <div className="flex space-x-4 mt-4">
+                        {" "}
+                        {/* margin-top para separação */}
                         <Button
                           onClick={() => openEditModal(produto)}
                           className="w-full"
