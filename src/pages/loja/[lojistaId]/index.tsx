@@ -5,7 +5,6 @@ import { db } from "@/lib/firebase";
 import { Produto, Lojista } from "@/lib/types";
 import Header from "@/components/ui/header";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 const LojaHome = () => {
   const [produtos, setProdutos] = useState<Produto[]>([]);
@@ -48,7 +47,11 @@ const LojaHome = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {produtos.length > 0 ? (
             produtos.map((produto) => (
-              <Card key={produto.id} className="p-4 shadow-lg max-w-4xl">
+              <Card
+                key={produto.id}
+                className="p-4 shadow-lg max-w-4xl cursor-pointer"
+                onClick={() => router.push(`/loja/${lojistaId}/produto/${produto.id}`)}
+              >
                 <img
                   src={produto.imagem || "/placeholder.png"}
                   alt={produto.nome}
@@ -65,18 +68,6 @@ const LojaHome = () => {
                   >
                     R$ {produto.preco ? produto.preco.toFixed(2) : "0.00"}
                   </p>
-                  <Button
-                    className="mt-4 w-full"
-                    style={{
-                      backgroundColor: lojista?.corPrimaria || "gray",
-                      color: "white",
-                    }}
-                    onClick={() =>
-                      alert(`Adicionar ao carrinho: ${produto.nome}`)
-                    }
-                  >
-                    Adicionar ao Carrinho
-                  </Button>
                 </div>
               </Card>
             ))

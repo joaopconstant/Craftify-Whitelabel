@@ -53,7 +53,6 @@ const Header = ({ type }: { type: "admin" | "loja" }) => {
             className="h-12 w-auto object-contain"
           />
         )}
-        <h1 className="text-lg font-bold">{lojistaNome}</h1>
       </div>
       {type === "admin" ? (
         <Button onClick={handleLogout} variant="outline">

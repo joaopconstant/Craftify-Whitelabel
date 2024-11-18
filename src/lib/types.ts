@@ -12,6 +12,7 @@ export interface Produto {
   lojistaId: string;
   nome: string;
   descricao: string;
+  detalhes?: string,
   preco: number;
   imagem: string;
   estoque: number,

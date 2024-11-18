@@ -30,11 +30,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/ui/header";
 import { Home, Layers, Settings, ShoppingBag } from "lucide-react";
+import { Produto } from "@/lib/types";
+import { Textarea } from "@/components/ui/textarea";
 
 const ProdutosPage = () => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [produtos, setProdutos] = useState<any[]>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // Para diferenciar entre adicionar e editar
@@ -42,6 +44,7 @@ const ProdutosPage = () => {
   const [nome, setNome] = useState("");
   const [imagem, setImagem] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [detalhes, setDetalhes] = useState("");
   const [preco, setPreco] = useState<number>(0);
   const [estoque, setEstoque] = useState<number>(0);
   const [customizavel, setCustomizavel] = useState<boolean>(false);
@@ -61,9 +64,9 @@ const ProdutosPage = () => {
       const querySnapshot = await getDocs(q);
 
       const produtosList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
         ...doc.data(),
-        id: doc.id, // Inclui o id do documento
-      }));
+      } as Produto));      
       setProdutos(produtosList);
       setLoading(false);
     } catch (error) {
@@ -107,6 +110,7 @@ const ProdutosPage = () => {
       nome,
       imagem,
       descricao,
+      detalhes,
       preco,
       estoque,
       customizavel,
@@ -120,6 +124,7 @@ const ProdutosPage = () => {
       setNome("");
       setImagem("");
       setDescricao("");
+      setDetalhes("");
       setPreco(0);
       setEstoque(0);
       setCustomizavel(false);
@@ -153,6 +158,7 @@ const ProdutosPage = () => {
       nome,
       imagem,
       descricao,
+      detalhes,
       preco,
       estoque,
       customizavel,
@@ -167,6 +173,7 @@ const ProdutosPage = () => {
       setNome("");
       setImagem("");
       setDescricao("");
+      setDetalhes("");
       setPreco(0);
       setEstoque(0);
       setCustomizavel(false);
@@ -184,6 +191,7 @@ const ProdutosPage = () => {
     setNome(produto.nome);
     setImagem(produto.imagem);
     setDescricao(produto.descricao);
+    setDetalhes(produto.detalhes);
     setPreco(produto.preco);
     setEstoque(produto.estoque);
     setCustomizavel(produto.customizavel);
@@ -291,6 +299,11 @@ const ProdutosPage = () => {
                   placeholder="Descrição do Produto"
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
+                />
+                <Textarea
+                  placeholder="Descrição do Produto"
+                  value={detalhes}
+                  onChange={(e) => setDetalhes(e.target.value)}
                 />
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <Label htmlFor="preco">Preço</Label>
