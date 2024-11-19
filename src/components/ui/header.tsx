@@ -62,13 +62,22 @@ const Header = ({ type }: { type: "admin" | "loja" }) => {
       ) : (
         <div className="flex items-center gap-6">
           <nav className="flex gap-4">
-            <a href="#inicio" className="text-sm font-semibold hover:underline">
+            <a
+              href={`/loja/${router.query.lojistaId}`}
+              className="text-sm font-semibold hover:underline"
+            >
               Início
             </a>
-            <a href="#produtos" className="text-sm font-semibold hover:underline">
+            <a
+              href={`/loja/${router.query.lojistaId}/produto`}
+              className="text-sm font-semibold hover:underline"
+            >
               Produtos
             </a>
-            <a href="#contato" className="text-sm font-semibold hover:underline">
+            <a
+              href={`/loja/${router.query.lojistaId}/contato`}
+              className="text-sm font-semibold hover:underline"
+            >
               Contato
             </a>
           </nav>

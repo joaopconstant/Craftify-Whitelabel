@@ -1,85 +1,104 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { collection, getDocs, query, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Produto, Lojista } from "@/lib/types";
 import Header from "@/components/ui/header";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
+import { HandHeart, Truck, ShieldCheck } from "lucide-react";
 
 const LojaHome = () => {
-  const [produtos, setProdutos] = useState<Produto[]>([]);
-  const [lojista, setLojista] = useState<Lojista | null>(null);
+  const [boasVindas, setBoasVindas] = useState<string | null>(null);
+  const [lojistaNome, setLojistaNome] = useState<string | null>(null);
+  const [corSecundaria, setCorSecundaria] = useState<string>("#f3f4f6");
   const router = useRouter();
   const { lojistaId } = router.query;
 
   useEffect(() => {
-    if (lojistaId) {
-      const fetchProdutos = async () => {
-        const produtosRef = collection(db, "produto");
-        const q = query(produtosRef);
-        const querySnapshot = await getDocs(q);
-
-        const produtosData: Produto[] = querySnapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() } as Produto))
-          .filter((produto) => produto.lojistaId === lojistaId);
-
-        setProdutos(produtosData);
-      };
-
-      const fetchLojista = async () => {
+    const fetchLojistaData = async () => {
+      if (lojistaId) {
         const docRef = doc(db, "lojista", lojistaId as string);
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setLojista(docSnap.data() as Lojista);
-        }
-      };
 
-      fetchProdutos();
-      fetchLojista();
-    }
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setBoasVindas(data.boasVindas || "Bem-vindo à nossa loja!");
+          setLojistaNome(data.nome);
+          setCorSecundaria(data.corSecundaria || "#f3f4f6");
+        }
+      }
+    };
+
+    fetchLojistaData();
   }, [lojistaId]);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div>
+      {/* Header */}
       <Header type="loja" />
-      <main className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Produtos</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {produtos.length > 0 ? (
-            produtos.map((produto) => (
-              <Card
-                key={produto.id}
-                className="p-4 shadow-lg max-w-4xl cursor-pointer"
-                onClick={() =>
-                  router.push(`/loja/${lojistaId}/produto/${produto.id}`)
-                }
-              >
-                <img
-                  src={produto.imagem || "/placeholder.png"}
-                  alt={produto.nome}
-                  className="w-full h-48 object-cover rounded-t-md"
-                />
-                <div className="mt-4">
-                  <h2 className="text-lg font-bold">{produto.nome}</h2>
-                  <p className="text-sm text-gray-600">{produto.descricao}</p>
-                  <p
-                    className="text-xl font-semibold mt-2"
-                    style={{
-                      color: lojista?.corSecundaria || "blue",
-                    }}
-                  >
-                    R$ {produto.preco ? produto.preco.toFixed(2) : "0.00"}
-                  </p>
-                </div>
-              </Card>
-            ))
-          ) : (
-            <p className="text-gray-600 text-center col-span-full">
-              Nenhum produto disponível no momento.
-            </p>
-          )}
+
+      {/* Conteúdo Principal */}
+      <div className="p-6 text-center">
+        <h1 className="text-3xl font-bold text-gray-800">{lojistaNome}</h1>
+        <p
+          className="mt-4 text-lg text-gray-600 whitespace-pre-line"
+          style={{ whiteSpace: "pre-line" }}
+        >
+          {boasVindas}
+        </p>
+
+        <div className="mt-8 flex justify-center gap-8 flex-wrap">
+          <Card className="w-64">
+            <CardHeader className="flex items-center gap-4">
+              <HandHeart className="w-8 h-8" style={{ color: corSecundaria }} />
+              <CardTitle className="text-xl " style={{ color: corSecundaria }}>
+                Feito à mão
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Produtos únicos e artesanais feitos com carinho.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="w-64">
+            <CardHeader className="flex items-center gap-4">
+              <Truck className=" w-8 h-8" style={{ color: corSecundaria }} />
+              <CardTitle className="text-xl" style={{ color: corSecundaria }}>
+                Envio para todo o Brasil
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Receba onde estiver, com rapidez e segurança.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="w-64">
+            <CardHeader className="flex items-center gap-4">
+              <ShieldCheck
+                className="w-8 h-8"
+                style={{ color: corSecundaria }}
+              />
+              <CardTitle className="text-xl" style={{ color: corSecundaria }}>
+                Pagamento Seguro
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Compre com total tranquilidade e proteção.
+              </CardDescription>
+            </CardContent>
+          </Card>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

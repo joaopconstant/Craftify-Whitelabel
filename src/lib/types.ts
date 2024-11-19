@@ -4,7 +4,8 @@ export interface Lojista {
   corSecundaria: string,
   logotipo: string,
   nome: string,
-  ownerId: string
+  ownerId: string,
+  boasVindas?:string
 }
 
 export interface Produto {

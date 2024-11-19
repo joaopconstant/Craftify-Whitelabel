@@ -10,6 +10,7 @@ import { Sidebar } from "@/components/ui/sidebar";
 import Header from "@/components/ui/header";
 import { Home, Layers, Settings, ShoppingBag } from "lucide-react";
 import { Lojista } from "@/lib/types";
+import { Textarea } from "@/components/ui/textarea";
 
 const ConfiguracoesPage = () => {
   const router = useRouter();
@@ -19,6 +20,7 @@ const ConfiguracoesPage = () => {
   const [nome, setNome] = useState<string>("");
   const [corPrimaria, setCorPrimaria] = useState<string>("");
   const [corSecundaria, setCorSecundaria] = useState<string>("");
+  const [boasVindas, setBoasVindas] = useState<string>("");
   const [logotipo, setLogotipo] = useState<string>("");
 
   useEffect(() => {
@@ -37,6 +39,7 @@ const ConfiguracoesPage = () => {
           setNome(lojistaData.nome || "");
           setCorPrimaria(lojistaData.corPrimaria || "");
           setCorSecundaria(lojistaData.corSecundaria || "");
+          setBoasVindas(lojistaData.boasVindas || "");
           setLogotipo(lojistaData.logotipo || "");
         }
       } else {
@@ -60,6 +63,7 @@ const ConfiguracoesPage = () => {
           nome,
           corPrimaria,
           corSecundaria,
+          boasVindas,
           logotipo,
         },
         { merge: true }
@@ -139,6 +143,17 @@ const ConfiguracoesPage = () => {
                         onChange={(e) => setCorSecundaria(e.target.value)}
                         className="mt-2"
                         style={{ backgroundColor: corSecundaria }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Texto de Boas Vindas
+                      </label>
+                      <Textarea
+                        placeholder="Digite seu texto"
+                        value={boasVindas}
+                        className="mt-2"
+                        onChange={(e) => setBoasVindas(e.target.value)}
                       />
                     </div>
                   </div>

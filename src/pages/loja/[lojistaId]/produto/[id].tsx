@@ -57,6 +57,13 @@ const ProdutoPage = () => {
       <Header type="loja" />
       <main className="container mx-auto p-6 flex justify-center">
         <Card className="max-w-4xl">
+        <Button
+              size={"icon"}
+              variant={"ghost"}
+              onClick={() => router.push(`/loja/${lojistaId}/produto`)}
+            >
+              <ChevronLeft />
+            </Button>
           <CardHeader>
             <CardTitle className="text-3xl">{produto.nome}</CardTitle>
             <CardDescription className="text-base">
@@ -76,13 +83,7 @@ const ProdutoPage = () => {
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button
-              size={"icon"}
-              variant={"outline"}
-              onClick={() => router.push(`/loja/${lojistaId}`)}
-            >
-              <ChevronLeft />
-            </Button>
+            <h1 className="text-2xl font-bold" style={{ color: lojista.corSecundaria }}>R$ {produto.preco ? produto.preco.toFixed(2) : "0.00"}</h1>
             <Button
               className="text-lg"
               style={{
@@ -94,7 +95,7 @@ const ProdutoPage = () => {
               }
             >
               <ShoppingCart />
-              Comprar R$ {produto.preco ? produto.preco.toFixed(2) : "0.00"}
+              Comprar
             </Button>
           </CardFooter>
         </Card>
