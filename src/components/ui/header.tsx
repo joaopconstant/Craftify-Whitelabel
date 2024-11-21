@@ -81,7 +81,10 @@ const Header = ({ type }: { type: "admin" | "loja" }) => {
               Contato
             </a>
           </nav>
-          <Button variant="outline" onClick={() => alert("Abrir carrinho")}>
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/loja/${router.query.lojistaId}/carrinho`)}
+          >
             <ShoppingCart className="mr-2" />
             Carrinho
           </Button>
