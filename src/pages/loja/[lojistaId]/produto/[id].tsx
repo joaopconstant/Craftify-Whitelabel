@@ -67,10 +67,10 @@ const ProdutoPage = () => {
       setOpenDialog(true); // Abre o modal para customização
     } else {
       const carrinhoAtual = JSON.parse(
-        localStorage.getItem("carrinho") || "[]"
+        localStorage.getItem(`carrinho_${lojistaId}`) || "[]"
       );
       carrinhoAtual.push(produto); // Adiciona o produto ao carrinho
-      localStorage.setItem("carrinho", JSON.stringify(carrinhoAtual)); // Salva no localStorage
+      localStorage.setItem(`carrinho_${lojistaId}`, JSON.stringify(carrinhoAtual)); // Salva no localStorage
       alert(`Produto ${produto.nome} adicionado ao carrinho!`);
     }
   };
