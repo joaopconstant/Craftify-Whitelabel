@@ -81,9 +81,9 @@ const ProdutoPage = () => {
       ...produto,
       especificacoes, // Adiciona as especificações customizadas
     };
-    const carrinhoAtual = JSON.parse(localStorage.getItem("carrinho") || "[]");
+    const carrinhoAtual = JSON.parse(localStorage.getItem(`carrinho_${lojistaId}`) || "[]");
     carrinhoAtual.push(produtoCustomizado); // Adiciona o produto customizado ao carrinho
-    localStorage.setItem("carrinho", JSON.stringify(carrinhoAtual)); // Salva no localStorage
+    localStorage.setItem(`carrinho_${lojistaId}`, JSON.stringify(carrinhoAtual)); // Salva no localStorage
     setOpenDialog(false); // Fecha o modal
     alert(`Produto ${produto.nome} customizado adicionado ao carrinho!`);
   };

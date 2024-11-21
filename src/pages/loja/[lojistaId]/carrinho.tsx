@@ -28,15 +28,15 @@ const Carrinho = () => {
 
     fetchLojistaData();
 
-    const carrinho = JSON.parse(localStorage.getItem("carrinho") || "[]");
+    const carrinho = JSON.parse(localStorage.getItem(`carrinho_${lojistaId}`) || "[]");
     setProdutos(carrinho);
   }, [lojistaId]);
 
 
   const removerProduto = (index: number) => {
-    const carrinhoAtual = JSON.parse(localStorage.getItem("carrinho") || "[]");
+    const carrinhoAtual = JSON.parse(localStorage.getItem(`carrinho_${lojistaId}`) || "[]");
     carrinhoAtual.splice(index, 1);
-    localStorage.setItem("carrinho", JSON.stringify(carrinhoAtual));
+    localStorage.setItem(`carrinho_${lojistaId}`, JSON.stringify(carrinhoAtual));
     setProdutos(carrinhoAtual);
   };
 
