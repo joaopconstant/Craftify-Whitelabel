@@ -315,7 +315,7 @@ const ProdutosPage = () => {
                   onChange={(e) => setDescricao(e.target.value)}
                 />
                 <Textarea
-                  placeholder="Descrição do Produto"
+                  placeholder="Detalhes do Produto"
                   value={detalhes}
                   onChange={(e) => setDetalhes(e.target.value)}
                 />

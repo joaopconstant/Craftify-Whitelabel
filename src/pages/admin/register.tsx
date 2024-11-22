@@ -36,8 +36,8 @@ const RegisterLojista = () => {
         ownerId: user.uid, // Relacionando o UID ao proprietário
       });
 
-      // Após o cadastro, redireciona para a página de administração
-      router.push(`/admin/${user.uid}`);
+      // Após o cadastro, redireciona para a página de login
+      router.push(`/admin/login`);
     } catch (err: any) {
       setError("Erro ao registrar o lojista. Tente novamente.");
       console.error(err);

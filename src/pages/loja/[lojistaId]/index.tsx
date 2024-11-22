@@ -11,6 +11,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { HandHeart, Truck, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const LojaHome = () => {
   const [boasVindas, setBoasVindas] = useState<string | null>(null);
@@ -98,6 +100,27 @@ const LojaHome = () => {
             </CardContent>
           </Card>
         </div>
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4 max-w-3xl text-center">
+            <h2 className="text-3xl font-bold mb-6">
+              Fique por dentro das novidades
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Cadastre-se para receber ofertas exclusivas e lançamentos em
+              primeira mão.
+            </p>
+            <div className="flex gap-4 max-w-md mx-auto">
+              <Input
+                type="email"
+                placeholder="Seu melhor e-mail"
+                className="flex-1"
+              />
+              <Button style={{ backgroundColor: corSecundaria }}>
+                Cadastrar
+              </Button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
