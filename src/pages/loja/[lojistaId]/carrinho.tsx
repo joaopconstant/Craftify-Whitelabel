@@ -3,13 +3,19 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
 import { useRouter } from "next/router";
-import { db } from "@/lib/firebase"; // Use db, pois o firestore não é exportado diretamente
-import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Carrinho = () => {
   const [produtos, setProdutos] = useState<any[]>([]);
   const [corPrimaria, setCorPrimaria] = useState<string>("");
   const [corSecundaria, setCorSecundaria] = useState<string>("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
   const router = useRouter();
   const { lojistaId } = router.query;
 
@@ -28,20 +34,60 @@ const Carrinho = () => {
 
     fetchLojistaData();
 
-    const carrinho = JSON.parse(localStorage.getItem(`carrinho_${lojistaId}`) || "[]");
+    const carrinho = JSON.parse(
+      localStorage.getItem(`carrinho_${lojistaId}`) || "[]"
+    );
     setProdutos(carrinho);
   }, [lojistaId]);
 
-
   const removerProduto = (index: number) => {
-    const carrinhoAtual = JSON.parse(localStorage.getItem(`carrinho_${lojistaId}`) || "[]");
+    const carrinhoAtual = JSON.parse(
+      localStorage.getItem(`carrinho_${lojistaId}`) || "[]"
+    );
     carrinhoAtual.splice(index, 1);
-    localStorage.setItem(`carrinho_${lojistaId}`, JSON.stringify(carrinhoAtual));
+    localStorage.setItem(
+      `carrinho_${lojistaId}`,
+      JSON.stringify(carrinhoAtual)
+    );
     setProdutos(carrinhoAtual);
   };
 
   const calcularTotal = () => {
     return produtos.reduce((total, produto) => total + (produto.preco || 0), 0);
+  };
+
+  const finalizarPedido = async () => {
+    if (!nome || !telefone) {
+      alert("Por favor, preencha o nome e o telefone.");
+      return;
+    }
+
+    if (!lojistaId) {
+      alert("Lojista não encontrado!");
+      return;
+    }
+
+    const novoPedido = {
+      lojistaId,
+      produtos,
+      total: calcularTotal(),
+      status: "Pendente",
+      cliente: { nome, telefone },
+      data: new Date().toISOString(),
+    };
+
+    try {
+      const pedidosRef = collection(db, "pedido");
+      await addDoc(pedidosRef, novoPedido);
+      alert("Pedido realizado com sucesso!");
+      localStorage.removeItem(`carrinho_${lojistaId}`);
+      setProdutos([]);
+      setOpenDialog(false);
+      router.push(`/loja/${lojistaId}`);
+    } catch (error) {
+      console.error("Erro ao salvar pedido:", error);
+      alert("Erro ao finalizar o pedido. Tente novamente.");
+    }
   };
 
   return (
@@ -75,7 +121,10 @@ const Carrinho = () => {
                       R$ {produto.preco?.toFixed(2)}
                     </p>
                   </div>
-                  <Button variant="outline" onClick={() => removerProduto(index)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => removerProduto(index)}
+                  >
                     Remover
                   </Button>
                 </div>
@@ -85,18 +134,65 @@ const Carrinho = () => {
           {produtos.length > 0 && (
             <div className="mt-6 flex justify-between">
               <h2 className="text-xl font-bold">Total</h2>
-              <p className="text-xl font-bold">R$ {calcularTotal().toFixed(2)}</p>
+              <p className="text-xl font-bold">
+                R$ {calcularTotal().toFixed(2)}
+              </p>
             </div>
           )}
           <Button
+            disabled={produtos.length === 0}
             className="w-full mt-6"
-            onClick={() => alert("Ir para o checkout")}
+            onClick={() => setOpenDialog(true)}
             style={{ backgroundColor: corPrimaria }}
           >
             Finalizar Pedido
           </Button>
         </div>
       </main>
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="bg-white p-6 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Finalize seu pedido</DialogTitle>
+            <p>Preencha as informações de contato para prosseguir.</p>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="nome">Nome</Label>
+              <Input
+                id="nome"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+                placeholder="Digite seu nome"
+              />
+            </div>
+            <div>
+              <Label htmlFor="telefone">Telefone</Label>
+              <Input
+                id="telefone"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+                placeholder="Digite seu telefone"
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-start mt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Fechar
+              </Button>
+            </DialogClose>
+            <Button
+              onClick={finalizarPedido}
+              style={{ backgroundColor: corPrimaria, color: "white" }}
+            >
+              Confirmar Pedido
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

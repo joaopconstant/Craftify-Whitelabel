@@ -85,7 +85,7 @@ const PedidosPage = () => {
 
   return (
     <div className="flex-col">
-      <Header type="admin"/>
+      <Header type="admin" />
       <div className="flex min-h-screen">
         <Sidebar>
           <Sidebar.Item onClick={() => router.push("/admin/")}>
@@ -121,7 +121,12 @@ const PedidosPage = () => {
                     >
                       <h3 className="font-bold">Pedido #{pedido.id}</h3>
                       <p>
-                        <strong>Cliente:</strong> {pedido.cliente}
+                        <strong>Cliente:</strong>{" "}
+                        {pedido.cliente?.nome || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Telefone:</strong>{" "}
+                        {pedido.cliente?.telefone || "Sem telefone"}
                       </p>
                       <p>
                         <strong>Status:</strong> {pedido.status}
@@ -130,10 +135,19 @@ const PedidosPage = () => {
                         <strong>Total:</strong> R${pedido.total}
                       </p>
                       <Button
+                        disabled={pedido.status === "Enviado"}
+                        className={`mt-2 w-full ${
+                          pedido.status === "Enviado" ? "opacity-50" : ""
+                        }`}
                         onClick={() => handleStatusUpdate(pedido.id, "Enviado")}
-                        className="mt-2 w-full"
                       >
-                        Marcar como Enviado
+                        {pedido.status === "Enviado" ? (
+                          <>
+                            Pedido Enviado
+                          </>
+                        ) : (
+                          "Marcar como Enviado"
+                        )}
                       </Button>
                     </div>
                   ))}

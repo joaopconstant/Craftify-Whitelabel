@@ -120,7 +120,7 @@ const ProdutoPage = () => {
               alt={produto.nome}
               className="w-auto h-auto max-h-80 object-contain rounded-lg"
             />
-            <div className="flex-col mt-4 md:mt-0">
+            <div className="min-w-56 flex-col mt-4 md:mt-0">
               <CardDescription style={{ whiteSpace: "pre-wrap" }}>
                 {produto.detalhes}
               </CardDescription>

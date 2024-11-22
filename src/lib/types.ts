@@ -24,6 +24,10 @@ export interface Pedido {
   id: string;
   dataCriacao: Date,
   lojistaId: string;
+  cliente: Array<{
+    nome: string,
+    telefone: string,
+  }>;
   produtos: Array<{
     produtoId: string;
     especificacoes: string,
