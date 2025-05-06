@@ -8,7 +8,12 @@ interface TestimonialProps {
   testimonial: string;
 }
 
-export function TestimonialCard({ name, business, image, testimonial }: TestimonialProps) {
+export function TestimonialCard({
+  name,
+  business,
+  image,
+  testimonial,
+}: TestimonialProps) {
   return (
     <Card className="p-6 h-full flex flex-col">
       <div className="flex items-center space-x-1 mb-4">
@@ -16,9 +21,7 @@ export function TestimonialCard({ name, business, image, testimonial }: Testimon
           <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
         ))}
       </div>
-      <blockquote className="text-lg mb-6 flex-grow">
-        "{testimonial}"
-      </blockquote>
+      <blockquote className="text-lg mb-6 flex-grow">{testimonial}</blockquote>
       <div className="flex items-center space-x-4">
         <img
           src={image}
