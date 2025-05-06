@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { useRouter } from "next/router";
 import { Card } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   children: ReactNode;
@@ -22,12 +22,10 @@ interface SidebarItemProps {
   onClick: () => void;
 }
 
-Sidebar.Item = ({ children, onClick }: SidebarItemProps) => (
-  <Button
-    onClick={onClick}
-    variant={"ghost"}
-    className="w-full text-lg"
-  >
-    {children}
-  </Button>
-);
+Sidebar.Item = function SidebarItem({ children, onClick }: SidebarItemProps) {
+  return (
+    <Button onClick={onClick} variant={"ghost"} className="w-full text-lg">
+      {children}
+    </Button>
+  );
+};
